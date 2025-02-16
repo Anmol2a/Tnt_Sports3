@@ -49,7 +49,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // Mute/Unmute
     mute.addEventListener("click", () => {
         video.muted = !video.muted;
-        mute.innerHTML = video.muted ? "🔇" : "🔊";
+        mute.innerHTML = video.muted ? "🔇" : "🔇";
     });
 
     // Adjust Volume
