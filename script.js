@@ -1,28 +1,40 @@
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", async function () {
     const video = document.getElementById("video");
     const playPause = document.getElementById("play-pause");
     const progressBar = document.getElementById("progress-bar");
     const mute = document.getElementById("mute");
     const volumeBar = document.getElementById("volume-bar");
     const fullscreen = document.getElementById("fullscreen");
+    const qualitySelector = document.getElementById("quality-selector");
+    const speedSelector = document.getElementById("speed-selector");
 
-    // DASH Player Setup
-    if (dashjs.MediaPlayer().isSupported()) {
-        const player = dashjs.MediaPlayer().create();
-        player.initialize(video, "https://ottb.live.cf.ww.aiv-cdn.net/lhr-nitro/live/clients/dash/enc/lsdasbvglv/out/v1/bb548a3626cd4708afbb94a58d71dce9/cenc.mpd", true);
+    // Initialize Shaka Player
+    shaka.polyfill.installAll();
+    if (!shaka.Player.isBrowserSupported()) {
+        alert("Shaka Player is not supported on this browser.");
+        return;
+    }
 
-        // ClearKey DRM Configuration
-        const clearkeyConfig = {
-            "org.w3.clearkey": {
-                "clearkeys": {
-                    "4e993aa8c1f295f8b94e8e9e6f6d0bfe": "86a1ed6e96caab8eb1009fe530d2cf4f"
-                }
-            }
-        };
+    const player = new shaka.Player(video);
 
-        player.setProtectionData(clearkeyConfig);
-    } else {
-        alert("DASH streaming is not supported in this browser.");
+    // ClearKey DRM Configuration
+    const clearkeyConfig = {
+        clearKeys: {
+            "4e993aa8c1f295f8b94e8e9e6f6d0bfe": "86a1ed6e96caab8eb1009fe530d2cf4f"
+        }
+    };
+
+    player.configure({
+        drm: {
+            servers: { "org.w3.clearkey": clearkeyConfig }
+        }
+    });
+
+    try {
+        await player.load("https://ottb.live.cf.ww.aiv-cdn.net/lhr-nitro/live/clients/dash/enc/lsdasbvglv/out/v1/bb548a3626cd4708afbb94a58d71dce9/cenc.mpd");
+        console.log("Video loaded successfully.");
+    } catch (e) {
+        console.error("Error loading video", e);
     }
 
     // Play/Pause Toggle
@@ -49,7 +61,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // Mute/Unmute
     mute.addEventListener("click", () => {
         video.muted = !video.muted;
-        mute.innerHTML = video.muted ? "🔇" : "🔇";
+        mute.innerHTML = video.muted ? "🔇" : "🔊";
     });
 
     // Adjust Volume
@@ -64,5 +76,30 @@ document.addEventListener("DOMContentLoaded", function () {
         } else {
             document.exitFullscreen();
         }
+    });
+
+    // Populate Quality Selector
+    player.addEventListener("adaptation", () => {
+        qualitySelector.innerHTML = "";
+        player.getVariantTracks().forEach(track => {
+            let option = document.createElement("option");
+            option.value = track.id;
+            option.textContent = `${track.height}p`;
+            qualitySelector.appendChild(option);
+        });
+    });
+
+    // Change Video Quality
+    qualitySelector.addEventListener("change", () => {
+        player.configure("abr.enabled", false);
+        player.selectVariantTrack(
+            player.getVariantTracks().find(track => track.id == qualitySelector.value),
+            true
+        );
+    });
+
+    // Change Playback Speed
+    speedSelector.addEventListener("change", () => {
+        video.playbackRate = parseFloat(speedSelector.value);
     });
 });
