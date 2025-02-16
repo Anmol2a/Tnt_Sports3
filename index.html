@@ -3,36 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ClearKey MPD Player - Shaka</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>ClearKey DRM MPD Player</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.3.5/shaka-player.ui.min.js"></script>
 </head>
 <body>
 
-<div class="video-container">
-    <video id="video" controls></video>
+    <h2>ClearKey DRM MPD Video Player</h2>
+    <video id="video" controls width="800"></video>
 
-    <div class="video-controls">
-        <button id="play-pause">&#9658;</button>
-        <input type="range" id="progress-bar" value="0" step="0.1">
-        <button id="mute">&#128266;</button>
-        <input type="range" id="volume-bar" min="0" max="1" step="0.1" value="1">
-        <button id="fullscreen">&#x26F6;</button>
-        <select id="quality-selector"></select>
-        <select id="speed-selector">
-            <option value="0.5">0.5x</option>
-            <option value="1" selected>1x</option>
-            <option value="1.5">1.5x</option>
-            <option value="2">2x</option>
-        </select>
-    </div>
-</div>
+    <script>
+        document.addEventListener("DOMContentLoaded", async function () {
+            const video = document.getElementById("video");
 
-<!-- Telegram Button -->
-<div class="telegram-container">
-    <a href="https://t.me/teamrohitoff45" target="_blank" class="telegram-btn">Join Telegram</a>
-</div>
+            // Initialize Shaka Player
+            shaka.polyfill.installAll();
+            if (!shaka.Player.isBrowserSupported()) {
+                alert("Shaka Player is not supported on this browser.");
+                return;
+            }
 
-<script src="script.js"></script>
+            const player = new shaka.Player(video);
+
+            // ClearKey DRM Configuration
+            const clearKeyConfig = {
+                drm: {
+                    clearKeys: {
+                        "4e993aa8c1f295f8b94e8e9e6f6d0bfe": "86a1ed6e96caab8eb1009fe530d2cf4f"
+                    }
+                }
+            };
+
+            player.configure(clearKeyConfig);
+
+            try {
+                await player.load("https://ottb.live.cf.ww.aiv-cdn.net/lhr-nitro/live/clients/dash/enc/lsdasbvglv/out/v1/bb548a3626cd4708afbb94a58d71dce9/cenc.mpd");
+                console.log("Video loaded successfully.");
+            } catch (e) {
+                console.error("Error loading video", e);
+            }
+        });
+    </script>
 </body>
 </html>
