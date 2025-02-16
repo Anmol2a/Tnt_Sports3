@@ -43,20 +43,24 @@ video {
 }
 
 .video-controls button:hover {
-    color: #d40404;
+    color: #00c3ff;
     transform: scale(1.1);
 }
 
 /* Volume & Progress Bar */
-.video-controls input {
-    accent-color: #d40404;
+.video-controls input, select {
+    accent-color: #00c3ff;
     cursor: pointer;
     width: 80px;
+    background: black;
+    color: white;
+    border: 1px solid #00c3ff;
+    border-radius: 5px;
 }
 
 /* Fullscreen Button */
 #fullscreen {
-    background: #d40404;
+    background: #00c3ff;
     padding: 5px 15px;
     border-radius: 10px;
     font-weight: bold;
@@ -64,7 +68,7 @@ video {
 }
 
 #fullscreen:hover {
-    background: #d40404;
+    background: #008ac7;
 }
 
 /* Telegram Button */
