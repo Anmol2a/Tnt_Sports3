@@ -1,94 +1,139 @@
- <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TG-ANMOL-LINKS</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.3.5/shaka-player.ui.min.js"></script>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TG_ANMOL_LINKS</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.3.5/shaka-player.compiled.min.js"></script>
+<style>
+  body {
+      background-color: black;
+      color: white;
+      text-align: center;
+  }
+  #videoContainer {
+      width: 80%;
+      margin: auto;
+  }
+  video {
+      width: 100%;
+      max-height: 80vh;
+  }
+  #telegramButton {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 378px;
+      height: 50px;
+      background: linear-gradient(90deg, darkblue, #001f3f);
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+      margin: 20px auto;
+      font-size: 18px;
+      font-weight: bold;
+  }
+  #qualitySelect {
+      margin-top: 10px;
+      padding: 8px;
+      font-size: 16px;
+      background-color: #001f3f;
+      color: white;
+      border: none;
+      border-radius: 5px;
+  }
+</style>
 </head>
 <body>
 
-    <h2>TNT SPORTS 3</h2>
-    <style>
-        h2{text-align:center;
+<h1>TEAMROHIT45OFFICAL Streaming</h1>
+
+<div id="videoContainer">
+  <video id="video" controls autoplay></video>
+  <select id="qualitySelect" onchange="changeQuality(this.value)">
+    <option value="auto">Auto Quality</option>
+  </select>
+</div>
+
+<script>
+  async function initShakaPlayer() {
+      if (!shaka.Player.isBrowserSupported()) {
+          console.error("Error: Your browser does not support Shaka Player.");
+          return;
+      }
+
+      const video = document.getElementById("video");
+      const player = new shaka.Player(video);
+
+      // Configure DRM (ClearKey)
+      player.configure({
+          drm: {
+              clearKeys: {
+                  "ae26845bd33038a9c0774a0981007294": "63ac662dde310cfb4cc6f9b43b34196d"
+              }
+          },
+          streaming: {
+              bufferingGoal: 10, // Reduce initial buffering time
+              rebufferingGoal: 5, // Minimize rebuffering
+              abr: { enabled: true } // Enable adaptive bitrate streaming
           }
-        </style>
-    <!-- Video Player -->
-    <video id="video" controls width="400"></video>
+      });
 
-    <!-- Quality Selection -->
-    <div>
-        <label for="quality">Select Quality:</label>
-        <select id="quality"></select>
-    </div>
+      try {
+          await player.load("https://ottb.live.cf.ww.aiv-cdn.net/lhr-nitro/live/clients/dash/enc/wf8usag51e/out/v1/bd3b0c314fff4bb1ab4693358f3cd2d3/cenc.mpd");
+          console.log("Video loaded successfully!");
 
-    <!-- Join Telegram Button -->
-    <div>
-        <a href="https://t.me/WPLLIVELINKS2025" target="_blank">
-            <button>Join Telegram</button>
-      </a>
-        
-    </div>
-    <script>
-        document.addEventListener("DOMContentLoaded", async function () {
-            const video = document.getElementById("video");
-            const qualitySelector = document.getElementById("quality");
+          // Populate quality selection dropdown
+          updateQualityOptions(player);
+      } catch (error) {
+          console.error("Error loading video:", error);
+      }
+  }
 
-            // Initialize Shaka Player
-            shaka.polyfill.installAll();
-            if (!shaka.Player.isBrowserSupported()) {
-                alert("Shaka Player is not supported on this browser.");
-                return;
-            }
+  function updateQualityOptions(player) {
+      const tracks = player.getVariantTracks();
+      const qualitySelect = document.getElementById("qualitySelect");
+      qualitySelect.innerHTML = <option value="auto">Auto Quality</option>;
 
-            const player = new shaka.Player(video);
+      tracks.forEach((track) => {
+          let label = ${track.height}p (${track.bandwidth} bps);
+          let option = document.createElement("option");
+          option.value = track.id;
+          option.textContent = label;
+          qualitySelect.appendChild(option);
+      });
+  }
 
-            // Configure Shaka Player
-            player.configure({
-                streaming: {
-                    bufferingGoal: 2,  // Buffer only 2 seconds before playing
-                    rebufferingGoal: 1 // Minimum 1 second rebuffering delay
-                },
-                abr: {
-                    enabled: false // Disable adaptive bitrate (ABR) for manual quality selection
-                },
-                drm: {
-                    clearKeys: {
-                        "4e993aa8c1f295f8b94e8e9e6f6d0bfe": "86a1ed6e96caab8eb1009fe530d2cf4f"
-                    }
-                }
-            });
+  function changeQuality(trackId) {
+      const player = shaka.Player.getInstance();
+      if (!player) return;
 
-            try {
-                await player.load("https://ottb.live.cf.ww.aiv-cdn.net/lhr-nitro/live/clients/dash/enc/lsdasbvglv/out/v1/bb548a3626cd4708afbb94a58d71dce9/cenc.mpd");
-                console.log("Video loaded successfully.");
+      if (trackId === "auto") {
+          player.configure({ abr: { enabled: true } }); // Enable Auto
+      } else {
+          player.configure({ abr: { enabled: false } }); // Disable Auto
+          player.selectVariantTrack(player.getVariantTracks().find(track => track.id == trackId), true);
+      }
+  }
 
-                // Populate Quality Options
-                player.getVariantTracks().forEach(track => {
-                    let option = document.createElement("option");
-                    option.value = track.id;
-                    option.textContent = `${track.height}p`;
-                    qualitySelector.appendChild(option);
-                });
-
-                // Change Quality on Selection
-                qualitySelector.addEventListener("change", function () {
-                    player.selectVariantTrack(
-                        player.getVariantTracks().find(track => track.id == qualitySelector.value),
-                        true
-                    );
-                });
-
-            } catch (e) {
-                console.error("Error loading video", e);
-            }
-        });
-    </script>
+  document.addEventListener("DOMContentLoaded", initShakaPlayer);
+</script>
 
 <script>
   if (confirm("Join Our Telegram Channel?")) { 
       window.location.href = "https://t.me/+3aJFsq2EJLg4NzI1"; 
   }
 </script>
+
+<div id="telegramButton" onclick="redirectToTelegram()">
+  Join Telegram
+</div>
+
+<script>
+  function redirectToTelegram() {
+      window.location.href = "https://t.me/+3aJFsq2EJLg4NzI1";
+  }
+</script>
+
 </body>
 </html>
