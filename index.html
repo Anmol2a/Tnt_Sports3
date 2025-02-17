@@ -1,3 +1,4 @@
+
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -73,8 +74,8 @@
               }
           },
           streaming: {
-              bufferingGoal: 5, // Reduce initial buffering time
-              rebufferingGoal: 3, // Minimize rebuffering
+              bufferingGoal: 10, // Reduce initial buffering time
+              rebufferingGoal: 5, // Minimize rebuffering
               abr: { enabled: true } // Enable adaptive bitrate streaming
           }
       });
@@ -93,10 +94,10 @@
   function updateQualityOptions(player) {
       const tracks = player.getVariantTracks();
       const qualitySelect = document.getElementById("qualitySelect");
-      qualitySelect.innerHTML = <option value="auto">Auto Quality</option>;
+      qualitySelect.innerHTML = `<option value="auto">Auto Quality</option>`;
 
       tracks.forEach((track) => {
-          let label = ${track.height}p (${track.bandwidth} bps);
+          let label = `${track.height}p (${track.bandwidth} bps)`;
           let option = document.createElement("option");
           option.value = track.id;
           option.textContent = label;
